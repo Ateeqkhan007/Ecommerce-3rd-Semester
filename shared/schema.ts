@@ -9,6 +9,7 @@ export const users = pgTable("users", {
   email: text("email").notNull(),
   firstName: text("firstName"),
   lastName: text("lastName"),
+  isAdmin: boolean("isAdmin").default(false),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -17,6 +18,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
   firstName: true,
   lastName: true,
+  isAdmin: true,
 });
 
 export const categories = pgTable("categories", {

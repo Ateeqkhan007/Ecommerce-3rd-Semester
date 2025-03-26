@@ -25,16 +25,22 @@ export interface IStorage {
   getProduct(id: number): Promise<Product | undefined>;
   getProductsByCategory(categoryId: number): Promise<Product[]>;
   searchProducts(query: string): Promise<Product[]>;
+  createProduct(product: Omit<Product, "id">): Promise<Product>;
+  updateProduct(id: number, product: Partial<Omit<Product, "id">>): Promise<Product | undefined>;
+  deleteProduct(id: number): Promise<boolean>;
   
   // Category methods
   getCategories(): Promise<Category[]>;
   getCategory(id: number): Promise<Category | undefined>;
   getCategoryBySlug(slug: string): Promise<Category | undefined>;
+  createCategory(category: Omit<Category, "id">): Promise<Category>;
   
   // Order methods
   createOrder(userId: number, items: Array<{productId: number, quantity: number}>): Promise<Order>;
   getOrder(id: number): Promise<{order: Order, items: OrderItem[]} | undefined>;
   getUserOrders(userId: number): Promise<Order[]>;
+  getAllOrders(): Promise<Order[]>;
+  updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
   
   // Session store
   sessionStore: session.SessionStore;
@@ -71,6 +77,18 @@ export class MemStorage implements IStorage {
   }
 
   private initializeData() {
+    // Create default admin user
+    this.users.set(1, {
+      id: 1,
+      username: "admin",
+      password: "$2b$10$XLxQH9EcUkFKVlR5xVqVwus1Xu7mCWOFXyGZU9bGCpq/cC/2z0Qdm", // "admin123" - hashed
+      email: "admin@example.com",
+      firstName: "Admin",
+      lastName: "User",
+      isAdmin: true
+    });
+    this.currentId.users = 2;
+    
     // Create categories
     const electronics = this.createCategory({ name: "Electronics", slug: "electronics" });
     const clothing = this.createCategory({ name: "Clothing", slug: "clothing" });
@@ -187,9 +205,20 @@ export class MemStorage implements IStorage {
     return category;
   }
 
-  private createProduct(data: Omit<Product, "id">): Product {
+  private createProduct(data: Partial<Omit<Product, "id">>): Product {
     const id = this.currentId.products++;
-    const product: Product = { id, ...data };
+    const product: Product = { 
+      id, 
+      ...data,
+      name: data.name || "",
+      description: data.description || "",
+      price: data.price || 0,
+      imageUrl: data.imageUrl || "",
+      categoryId: data.categoryId || 1,
+      inStock: data.inStock ?? true,
+      isNew: data.isNew ?? false,
+      isSale: data.isSale ?? false 
+    };
     this.products.set(id, product);
     return product;
   }
@@ -206,7 +235,11 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentId.users++;
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser, 
+      id,
+      isAdmin: insertUser.isAdmin ?? false
+    };
     this.users.set(id, user);
     return user;
   }
@@ -305,6 +338,46 @@ export class MemStorage implements IStorage {
     return Array.from(this.orders.values()).filter(
       (order) => order.userId === userId,
     );
+  }
+
+  async getAllOrders(): Promise<Order[]> {
+    return Array.from(this.orders.values());
+  }
+
+  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+    const order = this.orders.get(id);
+    if (!order) return undefined;
+    
+    const updatedOrder = { ...order, status };
+    this.orders.set(id, updatedOrder);
+    return updatedOrder;
+  }
+
+  async createProduct(product: Omit<Product, "id">): Promise<Product> {
+    const id = this.currentId.products++;
+    const newProduct: Product = { ...product, id };
+    this.products.set(id, newProduct);
+    return newProduct;
+  }
+
+  async updateProduct(id: number, product: Partial<Omit<Product, "id">>): Promise<Product | undefined> {
+    const existingProduct = this.products.get(id);
+    if (!existingProduct) return undefined;
+    
+    const updatedProduct: Product = { ...existingProduct, ...product };
+    this.products.set(id, updatedProduct);
+    return updatedProduct;
+  }
+
+  async deleteProduct(id: number): Promise<boolean> {
+    return this.products.delete(id);
+  }
+
+  async createCategory(category: Omit<Category, "id">): Promise<Category> {
+    const id = this.currentId.categories++;
+    const newCategory: Category = { ...category, id };
+    this.categories.set(id, newCategory);
+    return newCategory;
   }
 }
 
