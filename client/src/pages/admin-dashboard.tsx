@@ -675,7 +675,7 @@ export default function AdminDashboard() {
       
       {/* Product Form Dialog */}
       <Dialog open={productFormOpen} onOpenChange={setProductFormOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-screen overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingProduct ? "Edit Product" : "Add New Product"}
@@ -717,7 +717,7 @@ export default function AdminDashboard() {
                   name="description"
                   value={productForm.description}
                   onChange={handleProductFormChange}
-                  rows={4}
+                  rows={3}
                   required
                 />
               </div>
@@ -793,7 +793,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
               
-              <div className="flex flex-col gap-4 pt-2">
+              <div className="flex flex-col gap-2 pt-1">
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="inStock"
@@ -823,7 +823,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             
-            <DialogFooter>
+            <DialogFooter className="mt-6">
               <Button
                 type="button"
                 variant="outline"
