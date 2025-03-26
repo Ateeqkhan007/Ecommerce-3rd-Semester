@@ -43,7 +43,7 @@ export function setupAuth(app: Express) {
     saveUninitialized: false,
     store: storage.sessionStore,
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      maxAge: 24 * 60 * 60 * 1000 // Default to 24 hours
     }
   };
 
@@ -53,7 +53,11 @@ export function setupAuth(app: Express) {
   app.use(passport.session());
 
   passport.use(
-    new LocalStrategy(async (username, password, done) => {
+    new LocalStrategy({
+      // Allow passing rememberMe through req.body
+      passReqToCallback: true,
+    }, 
+    async (req, username, password, done) => {
       const user = await storage.getUserByUsername(username);
       if (!user || !(await comparePasswords(password, user.password))) {
         return done(null, false);
@@ -86,8 +90,25 @@ export function setupAuth(app: Express) {
     });
   });
 
-  app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    res.status(200).json(req.user);
+  app.post("/api/login", (req, res, next) => {
+    passport.authenticate("local", (err: Error | null, user: SelectUser | false) => {
+      if (err) return next(err);
+      if (!user) return res.status(401).json({ message: "Invalid username or password" });
+      
+      // Set the session cookie expiration based on rememberMe
+      if (req.body.rememberMe) {
+        // 30 days if "Remember me" is checked
+        req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
+      } else {
+        // Reset to default (24 hours) if not checked
+        req.session.cookie.maxAge = 24 * 60 * 60 * 1000;
+      }
+      
+      req.login(user, (err) => {
+        if (err) return next(err);
+        return res.status(200).json(user);
+      });
+    })(req, res, next);
   });
 
   app.post("/api/logout", (req, res, next) => {

@@ -92,6 +92,7 @@ function LoginForm({ isLoading, onSubmit }: { isLoading: boolean; onSubmit: (dat
     defaultValues: {
       username: "",
       password: "",
+      rememberMe: false,
     },
   });
 
@@ -127,17 +128,26 @@ function LoginForm({ isLoading, onSubmit }: { isLoading: boolean; onSubmit: (dat
         />
         
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-            />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-              Remember me
-            </label>
-          </div>
+          <FormField
+            control={form.control}
+            name="rememberMe"
+            render={({ field }) => (
+              <div className="flex items-center">
+                <FormControl>
+                  <input
+                    type="checkbox"
+                    id="rememberMe"
+                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                    checked={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
+                  Remember me
+                </label>
+              </div>
+            )}
+          />
           <a href="#" className="text-sm text-primary hover:text-primary/80">
             Forgot password?
           </a>
@@ -167,6 +177,7 @@ function RegisterForm({ isLoading, onSubmit }: { isLoading: boolean; onSubmit: (
       email: "",
       firstName: "",
       lastName: "",
+      isAdmin: false,
     },
   });
 
