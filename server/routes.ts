@@ -1,9 +1,17 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
-import { insertOrderSchema } from "@shared/schema";
+import { insertProductSchema, insertCategorySchema } from "@shared/schema";
 import { z } from "zod";
+
+// Middleware to check if user is admin
+const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.isAuthenticated() || !req.user.isAdmin) {
+    return res.status(403).json({ error: "Access denied. Admin privileges required." });
+  }
+  next();
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // sets up /api/register, /api/login, /api/logout, /api/user
@@ -161,6 +169,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(orders);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch user orders" });
+    }
+  });
+
+  // Admin routes
+  // Get all orders (admin only)
+  app.get("/api/admin/orders", isAdmin, async (req, res) => {
+    try {
+      const orders = await storage.getAllOrders();
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch all orders" });
+    }
+  });
+
+  // Update order status (admin only)
+  app.patch("/api/admin/orders/:id/status", isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid order ID" });
+      }
+
+      const { status } = req.body;
+      if (!status || typeof status !== "string") {
+        return res.status(400).json({ error: "Status is required" });
+      }
+
+      const updatedOrder = await storage.updateOrderStatus(id, status);
+      if (!updatedOrder) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+
+      res.json(updatedOrder);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update order status" });
+    }
+  });
+
+  // Create product (admin only)
+  app.post("/api/admin/products", isAdmin, async (req, res) => {
+    try {
+      const parseResult = insertProductSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ error: parseResult.error });
+      }
+
+      const newProduct = await storage.createProduct(parseResult.data);
+      res.status(201).json(newProduct);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create product" });
+    }
+  });
+
+  // Update product (admin only)
+  app.patch("/api/admin/products/:id", isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid product ID" });
+      }
+
+      // Allow partial updates
+      const productUpdateSchema = insertProductSchema.partial();
+      const parseResult = productUpdateSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ error: parseResult.error });
+      }
+
+      const updatedProduct = await storage.updateProduct(id, parseResult.data);
+      if (!updatedProduct) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      res.json(updatedProduct);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update product" });
+    }
+  });
+
+  // Delete product (admin only)
+  app.delete("/api/admin/products/:id", isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid product ID" });
+      }
+
+      const result = await storage.deleteProduct(id);
+      if (!result) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete product" });
+    }
+  });
+
+  // Create category (admin only)
+  app.post("/api/admin/categories", isAdmin, async (req, res) => {
+    try {
+      const parseResult = insertCategorySchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ error: parseResult.error });
+      }
+
+      const newCategory = await storage.createCategory(parseResult.data);
+      res.status(201).json(newCategory);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create category" });
     }
   });
 

@@ -7,6 +7,7 @@ import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import ProductDetailPage from "@/pages/product-detail-page";
 import CheckoutPage from "@/pages/checkout-page";
+import AdminDashboard from "@/pages/admin-dashboard";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
 import { CartProvider } from "./lib/cart-context";
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/auth" component={AuthPage} />
       <Route path="/product/:id" component={ProductDetailPage} />
       <ProtectedRoute path="/checkout" component={CheckoutPage} />
+      <ProtectedRoute path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

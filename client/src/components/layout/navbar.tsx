@@ -119,6 +119,14 @@ export default function Navbar() {
                   <DropdownMenuItem>Profile</DropdownMenuItem>
                   <DropdownMenuItem>Orders</DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
+                  {user.isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate("/admin")}>
+                        Admin Dashboard
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => logoutMutation.mutate()}
