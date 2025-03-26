@@ -273,6 +273,15 @@ export default function Navbar() {
                 >
                   My Profile
                 </Link>
+                {user.isAdmin && (
+                  <Link
+                    href="/admin"
+                    className="block text-gray-600 hover:text-primary font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
                 <button
                   className="block w-full text-left text-red-600 hover:text-red-800 font-medium"
                   onClick={() => {

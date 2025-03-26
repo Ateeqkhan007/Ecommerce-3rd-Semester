@@ -90,15 +90,15 @@ export class MemStorage implements IStorage {
     this.currentId.users = 2;
     
     // Create categories
-    const electronics = this.createCategory({ name: "Electronics", slug: "electronics" });
-    const clothing = this.createCategory({ name: "Clothing", slug: "clothing" });
-    const home = this.createCategory({ name: "Home & Furniture", slug: "home-furniture" });
-    const beauty = this.createCategory({ name: "Beauty", slug: "beauty" });
-    const sports = this.createCategory({ name: "Sports & Outdoors", slug: "sports" });
-    const books = this.createCategory({ name: "Books", slug: "books" });
+    const electronics = this.initCategory({ name: "Electronics", slug: "electronics" });
+    const clothing = this.initCategory({ name: "Clothing", slug: "clothing" });
+    const home = this.initCategory({ name: "Home & Furniture", slug: "home-furniture" });
+    const beauty = this.initCategory({ name: "Beauty", slug: "beauty" });
+    const sports = this.initCategory({ name: "Sports & Outdoors", slug: "sports" });
+    const books = this.initCategory({ name: "Books", slug: "books" });
 
     // Create products
-    this.createProduct({
+    this.initProduct({
       name: "Nike Air Max",
       description: "Premium men's running shoes with Air cushioning technology for maximum comfort and support. Perfect for running, training, or casual wear.",
       shortDescription: "Men's Running Shoe",
@@ -111,7 +111,7 @@ export class MemStorage implements IStorage {
       brand: "Nike"
     });
 
-    this.createProduct({
+    this.initProduct({
       name: "Smart Watch Pro",
       description: "Advanced smartwatch with health monitoring, GPS tracking, and notification features. Water-resistant and compatible with iOS and Android.",
       shortDescription: "Fitness Tracker",
@@ -124,7 +124,7 @@ export class MemStorage implements IStorage {
       brand: "SmartGear"
     });
 
-    this.createProduct({
+    this.initProduct({
       name: "Wireless Headphones",
       description: "Experience immersive sound with these wireless noise-cancelling headphones. 30-hour battery life and comfortable over-ear design.",
       shortDescription: "Noise Cancelling",
@@ -133,10 +133,12 @@ export class MemStorage implements IStorage {
       categoryId: electronics.id,
       rating: 5.0,
       inStock: true,
+      isNew: false,
+      isSale: false,
       brand: "SoundPro"
     });
 
-    this.createProduct({
+    this.initProduct({
       name: "Smartphone X",
       description: "High-performance smartphone with an amazing camera, all-day battery life, and premium design. Features the latest mobile technology.",
       shortDescription: "128GB, Midnight Black",
@@ -145,10 +147,12 @@ export class MemStorage implements IStorage {
       categoryId: electronics.id,
       rating: 4.0,
       inStock: true,
+      isNew: false,
+      isSale: false,
       brand: "TechMaster"
     });
 
-    this.createProduct({
+    this.initProduct({
       name: "Minimalist Chair",
       description: "Elegant minimalist chair made from high-quality materials. Adds a touch of modern style to any room. Comfortable and durable.",
       shortDescription: "Wooden, White",
@@ -157,10 +161,12 @@ export class MemStorage implements IStorage {
       categoryId: home.id,
       rating: 3.5,
       inStock: true,
+      isNew: false,
+      isSale: false,
       brand: "ModernHome"
     });
 
-    this.createProduct({
+    this.initProduct({
       name: "Digital Camera",
       description: "Professional-grade digital camera with 24MP sensor and 4K video capabilities. Ideal for photography enthusiasts and content creators.",
       shortDescription: "24MP, 4K Video",
@@ -169,11 +175,12 @@ export class MemStorage implements IStorage {
       categoryId: electronics.id,
       rating: 4.0,
       inStock: true,
+      isNew: false,
       isSale: true,
       brand: "CapturePro"
     });
 
-    this.createProduct({
+    this.initProduct({
       name: "Wireless Earbuds",
       description: "Compact, high-quality wireless earbuds with crystal-clear sound and long battery life. Includes charging case and multiple ear tip sizes.",
       shortDescription: "Bluetooth 5.0",
@@ -182,10 +189,12 @@ export class MemStorage implements IStorage {
       categoryId: electronics.id,
       rating: 4.0,
       inStock: true,
+      isNew: false,
+      isSale: false,
       brand: "SoundPro"
     });
 
-    this.createProduct({
+    this.initProduct({
       name: "Headphone Stand",
       description: "Elegant aluminum headphone stand to display and store your headphones. Keeps your desk organized while looking stylish.",
       shortDescription: "Aluminum",
@@ -194,18 +203,20 @@ export class MemStorage implements IStorage {
       categoryId: home.id,
       rating: 4.5,
       inStock: true,
+      isNew: false,
+      isSale: false,
       brand: "DeskOrganizer"
     });
   }
 
-  private createCategory(data: { name: string; slug: string }): Category {
+  private initCategory(data: { name: string; slug: string }): Category {
     const id = this.currentId.categories++;
     const category: Category = { id, ...data };
     this.categories.set(id, category);
     return category;
   }
 
-  private createProduct(data: Partial<Omit<Product, "id">>): Product {
+  private initProduct(data: Partial<Omit<Product, "id">>): Product {
     const id = this.currentId.products++;
     const product: Product = { 
       id, 
