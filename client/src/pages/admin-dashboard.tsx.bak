@@ -5,6 +5,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Redirect } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Product, Category, Order } from "@shared/schema";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +28,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { 
+  AlertCircle, 
+  CheckCircle, 
   Edit, 
   Plus, 
   Trash2, 
@@ -33,7 +41,8 @@ import {
   BarChart3, 
   Users, 
   DollarSign, 
-  TrendingUp,
+  TrendingUp, 
+  ChevronRight,
   Loader2 
 } from "lucide-react";
 import {
