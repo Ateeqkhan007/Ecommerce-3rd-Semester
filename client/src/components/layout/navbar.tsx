@@ -3,6 +3,8 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/lib/cart-context";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { Category } from "@shared/schema";
 import {
   ShoppingBag,
   User,
@@ -28,6 +30,11 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [location, navigate] = useLocation();
+  
+  // Fetch categories from API
+  const { data: categories, isLoading: isCategoriesLoading } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
+  });
 
   const handleSearch = (query: string) => {
     console.log("Search:", query);
@@ -63,24 +70,21 @@ export default function Navbar() {
               </button>
               <div className="hidden group-hover:block absolute top-full left-0 w-64 bg-white shadow-lg rounded-md mt-2 p-4 z-20">
                 <div className="space-y-2">
-                  <Link href="/" className="block p-2 hover:bg-gray-50 rounded">
-                    Electronics
-                  </Link>
-                  <Link href="/" className="block p-2 hover:bg-gray-50 rounded">
-                    Clothing
-                  </Link>
-                  <Link href="/" className="block p-2 hover:bg-gray-50 rounded">
-                    Home & Furniture
-                  </Link>
-                  <Link href="/" className="block p-2 hover:bg-gray-50 rounded">
-                    Beauty
-                  </Link>
-                  <Link href="/" className="block p-2 hover:bg-gray-50 rounded">
-                    Sports & Outdoors
-                  </Link>
-                  <Link href="/" className="block p-2 hover:bg-gray-50 rounded">
-                    Books
-                  </Link>
+                  {isCategoriesLoading ? (
+                    <div className="text-sm text-gray-500">Loading categories...</div>
+                  ) : categories && categories.length > 0 ? (
+                    categories.map((category) => (
+                      <Link 
+                        key={category.id} 
+                        href={`/category/${category.slug}`} 
+                        className="block p-2 hover:bg-gray-50 rounded"
+                      >
+                        {category.name}
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="text-sm text-gray-500">No categories found</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -195,48 +199,22 @@ export default function Navbar() {
                 <ChevronDown className="h-4 w-4" />
               </button>
               <div className="mt-2 pl-4 space-y-2">
-                <Link
-                  href="/"
-                  className="block p-2 hover:bg-gray-50 rounded"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Electronics
-                </Link>
-                <Link
-                  href="/"
-                  className="block p-2 hover:bg-gray-50 rounded"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Clothing
-                </Link>
-                <Link
-                  href="/"
-                  className="block p-2 hover:bg-gray-50 rounded"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Home & Furniture
-                </Link>
-                <Link
-                  href="/"
-                  className="block p-2 hover:bg-gray-50 rounded"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Beauty
-                </Link>
-                <Link
-                  href="/"
-                  className="block p-2 hover:bg-gray-50 rounded"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Sports & Outdoors
-                </Link>
-                <Link
-                  href="/"
-                  className="block p-2 hover:bg-gray-50 rounded"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Books
-                </Link>
+                {isCategoriesLoading ? (
+                  <div className="text-sm text-gray-500">Loading categories...</div>
+                ) : categories && categories.length > 0 ? (
+                  categories.map((category) => (
+                    <Link
+                      key={category.id}
+                      href={`/category/${category.slug}`}
+                      className="block p-2 hover:bg-gray-50 rounded"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {category.name}
+                    </Link>
+                  ))
+                ) : (
+                  <div className="text-sm text-gray-500">No categories found</div>
+                )}
               </div>
             </div>
             <Link
