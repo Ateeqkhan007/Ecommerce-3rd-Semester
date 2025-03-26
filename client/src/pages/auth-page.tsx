@@ -192,7 +192,7 @@ function RegisterForm({ isLoading, onSubmit }: { isLoading: boolean; onSubmit: (
               <FormItem>
                 <FormLabel>First Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="First name" {...field} />
+                  <Input placeholder="First name" {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -206,7 +206,7 @@ function RegisterForm({ isLoading, onSubmit }: { isLoading: boolean; onSubmit: (
               <FormItem>
                 <FormLabel>Last Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Last name" {...field} />
+                  <Input placeholder="Last name" {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
